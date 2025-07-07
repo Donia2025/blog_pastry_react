@@ -1,25 +1,18 @@
+import { Translate } from "@mui/icons-material";
 import { Box, Button, CardMedia, Typography } from "@mui/material";
-import { useContext } from "react";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 import { Postscontext } from "../Context/Context";
-const Nosearchmatch = () => {
-  const { setsearchparams, setInputValue, inputValue, searchParams } =
-    useContext(Postscontext);
-  const catid = searchParams.get("catid");
+const Nosearchmatch = ({ handleOpen, setmood, setidedit }) => {
+    const { setsearchparams, setInputValue, inputValue, searchParams } =
+      useContext(Postscontext);
+    const catid = searchParams.get("catid");
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          position: "absolute",
-          bottom: 0,
-          mt: 11,
-          mx: 11,
-        }}
-      >
+      <Box sx={{ display: "flex", mt: 11, mx: 11 }}>
         <CardMedia
           sx={{
-            height: {},
             width: "400px",
             height: "400px",
             borderRadius: 1,
@@ -38,12 +31,15 @@ const Nosearchmatch = () => {
         <Box sx={{ position: "relative" }}>
           <CardMedia
             sx={{
+              height: "360px",
+              width: "671px",
               borderRadius: 1,
               objectFit: "cover",
               objectPosition: "center",
+              mt: 6,
             }}
             component="img"
-            image="/Vectorsearch.svg"
+            image="/Vector.svg"
             title=" img2"
           />
           <Box
@@ -88,7 +84,7 @@ const Nosearchmatch = () => {
                 cursor: "pointer",
               }}
               onClick={() => {
-                setsearchparams({ catid: catid });
+                setsearchparams({});
                 setInputValue("");
               }}
             >

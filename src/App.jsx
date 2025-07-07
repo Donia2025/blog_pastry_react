@@ -6,12 +6,10 @@ import Home from "./Pages/Home";
 import Posts from "./Pages/Posts";
 import Postdetails from "./Pages/Postdetails";
 import Notfounfpage from "./Pages/Notfounfpage";
-import SignUp from "./Components/Sign up";
-import { Login } from "@mui/icons-material";
 import { SnackbarProvider } from "notistack";
+import Profile from "./Pages/Profile";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -25,8 +23,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="post" element={<Posts />} />
-            <Route path="post/:id" element={<Postdetails />} />
+            {/* <Route path="post" element={<Posts />} /> */}
+            <Route path="/category/:catid/post/:id" element={<Postdetails />} />
+            <Route path="profile" element={<Profile />} />
 
             <Route path="signup" element={<Home />} />
             <Route path="login" element={<Home />} />

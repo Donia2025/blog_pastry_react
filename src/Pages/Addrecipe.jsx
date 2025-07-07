@@ -6,24 +6,18 @@ import Fade from "@mui/material/Fade";
 import Button from "@mui/material/Button";
 import UploadAvatars from "../Components/UploadAvatars";
 import Multitoggelbutton from "../Components/Multitoggelbutton";
-import AddIcon from "@mui/icons-material/Add";
-
 import {
   CircularProgress,
-  Fab,
   Grid,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { useForm } from "react-hook-form";
 import { Postscontext } from "../Context/Context";
 import ErrorstateAddpost from "../Components/ErrorstateAddpost";
 import MycustomeSnackbarwarning from "../Components/MycustomeSnackbarwarning";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import MycustomeSnackbar from "../Components/MycustomeSnackbarSucess";
 import axios from "axios";
 
 const style = {
@@ -56,18 +50,24 @@ const style = {
 export default function Addrecipe({
   open,
   setOpen,
-  handleOpen,
   handleClose,
-  setmood,
   mood,
   idedit,
-  
 }) {
   const [postdetails, setpostdetails] = React.useState([]);
-  console.log(mood);
-  console.log(idedit);
+  const [difficulty, setdifficulty] = React.useState("");
+  const [category, setcategory] = React.useState("");
+  const originalDataRef = React.useRef(null);
 
-  //
+  //images
+  const { uploadimag, imagesurl, form, setform, updatepost } =
+    React.useContext(Postscontext);
+  const [avatarSrc, setAvatarSrc] = React.useState([null, null, null, null]);
+  const [fileSrc, setfileSrc] = React.useState([null, null, null, null]);
+  const [imageuploaded, setimageuploaded] = React.useState([]);
+  const { uploading, addingPost, uploadError, addPostError, statesucces } =
+    React.useContext(Postscontext);
+
   React.useEffect(() => {
     const fetchpostdetails = async (id) => {
       try {
@@ -86,26 +86,33 @@ export default function Addrecipe({
           baking_time: data.baking_time || "",
           preparation_time: data.preparation_time || "",
           serves: data.serves || "",
-          category: data.category || "",
+          category: data.category.id || "",
           difficulty: data.difficulty || "",
-          // images: [],
         });
-           setdifficulty(data.difficulty);
-      setform((prev) => ({
-        ...prev,
-        difficulty: data.difficulty,
-      }))
-          setcategory(data.category,id);
-      setform((prev) => ({
-        ...prev,
-        difficulty: data.difficulty,
-      }))
-
-   
+        setdifficulty(data.difficulty);
+        setform((prev) => ({
+          ...prev,
+          difficulty: data.difficulty,
+        }));
+        setcategory(data.category.id);
+        setform((prev) => ({
+          ...prev,
+          category: data.category.id,
+        }));
+        originalDataRef.current = {
+          title: data.title || "",
+          intro: data.intro || "",
+          description: data.description || "",
+          ingredient: data.ingredient || "",
+          baking_time: data.baking_time || "",
+          preparation_time: data.preparation_time || "",
+          serves: data.serves || "",
+          category: data.category.id || "",
+          difficulty: data.difficulty || "",
+          images: data.images.map((img) => img.img_url),
+        };
       } catch (err) {
         console.log(err);
-      } finally {
-        // setstateloading(false);
       }
     };
     if (idedit && mood === "edit") {
@@ -113,7 +120,8 @@ export default function Addrecipe({
     }
     if (mood === "add") {
       setAvatarSrc([]);
-
+      setcategory("");
+      setdifficulty("");
       setform({
         title: "",
         intro: "",
@@ -126,33 +134,9 @@ export default function Addrecipe({
         difficulty: "",
         images: [],
       });
-        setdifficulty("");
-      setform((prev) => ({
-        ...prev,
-        difficulty:"",
-      }))
     }
   }, [idedit, mood]);
-  console.log(postdetails);
-  // console.log(postdetails_images);
-  //
 
-  const [difficulty, setdifficulty] = React.useState("");
-  const [category, setcategory] = React.useState("");
-  //images
-  const { uploadimag, imagesurl, form, setform } =
-    React.useContext(Postscontext);
-  const [avatarSrc, setAvatarSrc] = React.useState([null, null, null, null]);
-  const [fileSrc, setfileSrc] = React.useState([null, null, null, null]);
-  const [imageuploaded, setimageuploaded] = React.useState([]);
-  const {
-    uploading,
-    addingPost,
-    uploadError,
-    addPostError,
-    stateerrorfetch,
-    statesucces,
-  } = React.useContext(Postscontext);
   React.useEffect(() => {
     if (statesucces) {
       setOpen(false);
@@ -167,20 +151,14 @@ export default function Addrecipe({
       updatedFileSrc[index - 1] = file;
       setfileSrc(updatedFileSrc);
       // to make url preview
-      if (mood === "add") {
-        const updatedavatarSrc = [...avatarSrc];
-        updatedavatarSrc[index - 1] = URL.createObjectURL(file);
-        setAvatarSrc(updatedavatarSrc);
-      }
+      const updatedavatarSrc = [...avatarSrc];
+      updatedavatarSrc[index - 1] = URL.createObjectURL(file);
+      setAvatarSrc(updatedavatarSrc);
     }
   };
-  console.log(fileSrc);
-  console.log(avatarSrc);
-
   const control = {
     exclusive: true,
   };
-
   const children = ["Easy", "Medium", "Hard"].map((itm, index) => (
     <ToggleButton
       variant="h1"
@@ -219,13 +197,12 @@ export default function Addrecipe({
     }));
   };
   const handelchange = (_, value) => {
-    if (mood === "add") {
       setdifficulty(value);
       setform((prev) => ({
         ...prev,
         difficulty: value,
       }));
-    }
+    
   };
   const handelchangecategory = (_, value) => {
     console.log(value);
@@ -237,40 +214,124 @@ export default function Addrecipe({
       }));
     }
   };
-  const handelsumbitrecipe = () => {
-    console.log("ggg");
-    const images = fileSrc.filter(Boolean);
-    if (
-      form.title.trim() !== "" &&
-      form.ingredient.trim() !== "" &&
-      form.description.trim() !== "" &&
-      form.intro.trim() !== "" &&
-      form.category &&
-      form.difficulty !== "" &&
-      form.preparation_time !== 0 &&
-      form.preparation_time !== "" &&
-      form.preparation_time > 0 &&
-      form.baking_time !== 0 &&
-      form.baking_time !== "" &&
-      form.baking_time > 0 &&
-      form.serves !== "" &&
-      form.serves !== 0 &&
-      form.serves > 0 &&
-      images.length === 4
-    ) {
-      console.log(typeof form.category);
-      console.log("hi");
-      uploadimag(images);
+  const handelsumbitrecipe = async () => {
+    if (mood === "edit") {
+      const imagesToUpload = [];
+      const imagePositions = [];
+      for (let i = 0; i < originalDataRef.current.images.length; i++) {
+        const oldImageName = originalDataRef.current.images[i]
+          ?.split("/")
+          .pop();
+        const newFile = fileSrc[i];
+        if (newFile instanceof File && !newFile.name.includes(oldImageName)) {
+          imagesToUpload.push(newFile);
+          imagePositions.push(i);
+        }
+      }
+      console.log(originalDataRef.current);
+      console.log(form);
+      const ismodified = Object.keys(form).some(
+        (key) => form[key] !== originalDataRef.current[key]
+      );
+      console.log("Is modified:", ismodified);
+      if(!ismodified && imagesToUpload.length === 0) {
+        enqueueSnackbar("No changes detected to update.", {
+          content: (key, message) => (
+            <MycustomeSnackbarwarning
+              id={key}
+              message={message}
+              closeSnackbar={closeSnackbar}
+            />
+          ),
+        });
+        return;
+      } 
+
+      let updatedForm = { ...form };
+      let imagesUpdated = false;
+      const updatedImages = [...originalDataRef.current.images];
+
+      if (imagesToUpload.length > 0) {
+        try {
+          for (let i = 0; i < imagesToUpload.length; i++) {
+            const imge = imagesToUpload[i];
+
+            const formData = new FormData();
+            formData.append("file", imge);
+            formData.append("upload_preset", "my_preset");
+            formData.append("cloud_name", "dkpw1hn3b");
+
+            const response = await axios.post(
+              "https://api.cloudinary.com/v1_1/dkpw1hn3b/image/upload",
+              formData
+            );
+            const imageUrl = response.data.secure_url;
+            updatedImages[imagePositions[i]] = imageUrl;
+            imagesUpdated = true; // ✅
+
+            console.log("Uploaded image URL:", imageUrl);
+          }
+            // Update the form with the new image URL
+            updatedForm.images = updatedImages;
+            setform((prev) => ({
+              ...prev,
+              images: updatedImages,
+            }));
+
+            // cal update function here
+            console.log("Updated form with new images:", updatedForm);
+          
+        } catch (err) {
+          console.log("Error uploading images:", err);
+        }
+      }
+
+      if (ismodified || imagesUpdated) {
+        
+          // updatedForm.images = [...originalDataRef.current.images];
+
+        updatepost(updatedForm, idedit);
+
+        console.log(
+          "Form has been modified or images updated. Proceeding with update."
+        );
+        //  call update only
+      }
+      // if(ismodified ||imagesToUpload.length > 0) {
+      //   console.log("Form has been modified, proceeding with update.");
+      // }
     } else {
-      enqueueSnackbar("Please complete all fields before submitting.", {
-        content: (key, message) => (
-          <MycustomeSnackbarwarning
-            id={key}
-            message={message}
-            closeSnackbar={closeSnackbar}
-          />
-        ),
-      });
+      const images = fileSrc.filter(Boolean);
+      if (
+        form.title.trim() !== "" &&
+        form.ingredient.trim() !== "" &&
+        form.description.trim() !== "" &&
+        form.intro.trim() !== "" &&
+        form.category &&
+        form.difficulty !== "" &&
+        form.preparation_time !== 0 &&
+        form.preparation_time !== "" &&
+        form.preparation_time > 0 &&
+        form.baking_time !== 0 &&
+        form.baking_time !== "" &&
+        form.baking_time > 0 &&
+        form.serves !== "" &&
+        form.serves !== 0 &&
+        form.serves > 0 &&
+        images.length === 4
+      ) {
+        uploadimag(images, "add");
+      } else {
+        enqueueSnackbar("Please complete all fields before submitting.", {
+          content: (key, message) => (
+            <MycustomeSnackbarwarning
+              id={key}
+              message={message}
+              closeSnackbar={closeSnackbar}
+            />
+          ),
+        });
+      }
     }
   };
 
@@ -281,21 +342,9 @@ export default function Addrecipe({
     }));
   }, [imagesurl]);
   console.log(form);
+
   return (
     <Box sx={{ mt: 11 }} component="form">
-      {/* <Tooltip title="Add New Post">
-        <Fab
-          size="small"
-          aria-label="add"
-          sx={{
-            color: "primary.light",
-            backgroundColor: "primary.contrastText",
-          }}
-          onClick={handleOpen}
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip> */}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

@@ -9,17 +9,17 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Postscontext } from "../Context/Context";
 import { Tooltip } from "@mui/material";
 
-const pages = ["Home", "Posts", "Category", "About Us", "Contact Us"];
-const route = ["/", "/post", "/Category", "/", "/"];
-const settings = ["Profile", "Logout"];
+const pages = ["Home", "Posts"];
+const route = ["/", "/Category"];
+const settings = ["Logout"];
 
 function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const { usename, logout, setsearchparams } = React.useContext(Postscontext);
+  const { usename, logout, useimag } = React.useContext(Postscontext);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const logoutuser = (setting) => {
     if (setting === "Logout") {
@@ -41,20 +41,7 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-  const {
-    category,
-    fetchcategory,
-    handleCloseCat,
-    anchorElCat,
-    setAnchorElCat,
-    fetchposts,
-  } = React.useContext(Postscontext);
-  const openCat = Boolean(anchorElCat);
-
-  const handleClickCat = async (e) => {
-    setAnchorElCat(e.currentTarget);
-    fetchcategory();
-  };
+  const { fetchposts } = React.useContext(Postscontext);
 
   return (
     <AppBar
@@ -127,97 +114,42 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
 
         <Typography variant="h4" component="h1" sx={{}}></Typography>
         <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, gap: 2 }}>
-          {pages.map((page, index) =>
-            page === "Category" ? (
-              <React.Fragment key={page}>
-                <Link to="/category" style={{ textDecoration: "none" }}>
-                  <Button
-                    id="cat-button"
-                    // key={page}
-                    aria-haspopup="true"
-                    onClick={handleClickCat}
-                    sx={{
-                      my: 2,
-                      // mr: 3,
-                      color: "primary.light",
-                      display: "block",
-                      fontSize: "1.125rem",
-                      fontWeight: 600,
-                      fontFamily: " Playfair Display",
-                      textTransform: "capitalize",
-                      mx: "auto",
-                    }}
-                  >
-                    Category
-                  </Button>
-                </Link>
-                <Menu
-                  id="cat-menu"
-                  anchorEl={anchorElCat}
-                  open={openCat}
-                  onClose={() => handleCloseCat()}
-                  MenuListProps={{ "aria-labelledby": "cat-button" }}
-                >
-                  {category.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      onClick={() => {
-                        handleCloseCat(item.id);
-                      }}
-                    >
-                      {item.name}
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </React.Fragment>
-            ) : page === "Posts" ? (
-              <Link to="/post" key={page} style={{ textDecoration: "none" }}>
-                <Button
-                  key={page}
-                  onClick={() => fetchposts()}
-                  sx={{
-                    my: 2,
-                    color: "primary.light",
-                    display: "block",
-                    fontSize: "1.125rem",
-                    fontWeight: 600,
-                    fontFamily: " Playfair Display",
-                    textTransform: "capitalize",
-                    mx: "auto",
-                  }}
-                >
-                  Posts
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/" key={page} style={{ textDecoration: "none" }}>
-                <Button
-                  key={page}
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    my: 2,
-                    // mr: 3,
-                    color: "primary.light",
-                    display: "block",
-                    fontSize: "1.125rem",
-                    fontWeight: 600,
-                    fontFamily: " Playfair Display",
-                    textTransform: "capitalize",
-                    mx: "auto",
-                  }}
-                >
-                  {page}
-                </Button>
-              </Link>
-            )
-          )}
+         {pages.map((page, index) => (
+  <NavLink
+    to={route[index]}
+    key={page}
+    style={{ textDecoration: "none" }}
+  >
+    {({ isActive }) => (
+      <Button
+        onClick={() => {
+          handleCloseNavMenu();
+          if (page === "Posts") fetchposts(); 
+        }}
+        sx={{
+          my: 2,
+          color:"white",
+          display: "block",
+          fontSize: "1.125rem",
+          fontWeight: 600,
+          fontFamily: "Playfair Display",
+          textTransform: "capitalize",
+          mx: "auto",
+          borderBottom: isActive ? "2px solid white" : "none",
+        }}
+      >
+        {page}
+      </Button>
+    )}
+  </NavLink>
+))}
         </Box>
         <Box sx={{ display: "flex", gap: 3 }}>
           {usename ? (
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="Remy Sharp" src={useimag} />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -248,12 +180,36 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
                       logoutuser(setting);
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{ textAlign: "center", px: 1, py: 1 }}
-                    >
-                      {setting}
-                    </Typography>
+                    {setting === "Profile" ? (
+                      <Link
+                        to="/profile"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            textAlign: "center",
+                            px: 1,
+                            py: 1,
+                            fontSize: "1.25rem",
+                          }}
+                        >
+                          Profile
+                        </Typography>
+                      </Link>
+                    ) : (
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textAlign: "center",
+                          px: 1,
+                          py: 1,
+                          fontSize: "1.25rem",
+                        }}
+                      >
+                        {setting}
+                      </Typography>
+                    )}
                   </MenuItem>
                 ))}
               </Menu>
@@ -270,6 +226,7 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
                   fontFamily: "Playfair Display",
                   fontWeight: 600,
                   fontSize: "1.125rem",
+                  boxShadow: " 0 4px 8px rgba(0, 0, 0, 0.2)",
                 }}
               >
                 Log In
@@ -284,7 +241,7 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
                   fontWeight: 600,
                   fontSize: "1.125rem",
                   color: "primary.light",
-                  boxShadow: "0px 4px 4px 0px rgba(196, 10, 104, 0.25)",
+                  boxShadow: " 0 4px 8px rgba(0, 0, 0, 0.2)",
                 }}
               >
                 Sign Up
@@ -293,7 +250,6 @@ function ResponsiveAppBar({ onclicksignup, onclicklogin }) {
           )}
         </Box>
       </Toolbar>
-      {/* </Container> */}
     </AppBar>
   );
 }

@@ -61,14 +61,9 @@ export default function login({ open, onClose, closelogin,setuserdatalogin }) {
       );
       localStorage.clear();
       console.log(res.data);
-      const { jwt, user,id } = res.data;
-      console.log(jwt);
-      console.log(user);
-
-      // const nameUser=res.data.user.username
-      // const tokenUser=res.data.jwt
-      // console.log(tokenUser)
-      login(user.username, jwt,user.id);
+      const { jwt, user } = res.data;
+      console.log(user.imguser)
+      login(user.username, jwt,user.id,user.imguser);
       setuserinvaled(false);
       reset();
       console.log("done");

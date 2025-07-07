@@ -6,6 +6,8 @@ import SignUp from "../Components/Sign up";
 import Login from "../Components/Login";
 
 import React, { useEffect, useState } from "react";
+import Footer from "../Components/Footer";
+import Emptystate from "../Pages/Emptystate";
 
 export default function Layout() {
   const location = useLocation();
@@ -56,6 +58,8 @@ export default function Layout() {
         <Box>
           <Outlet />
         </Box>
+           <Footer
+        />
       </PostsProvider>
     </>
   );

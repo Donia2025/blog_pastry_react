@@ -1,22 +1,32 @@
-import { Translate } from "@mui/icons-material";
 import { Box, Button, CardMedia, Typography } from "@mui/material";
-import React from "react";
-import { Link } from "react-router-dom";
+import { useContext } from "react";
 import { Postscontext } from "../Context/Context";
-const Emptystate = ({handleOpen,setmood,setidedit}) => {
-    const { usename } = React.useContext(Postscontext);
-  
+const Nosearchmatch = () => {
+  const { setInputValue, searchParams } =
+    useContext(Postscontext);
+//   const catid = searchParams.get("catid");
+
   return (
     <>
-      <Box sx={{ display: "flex", mt:11,mx:11 }}>
+      <Box
+        sx={{
+          display: "flex",
+          position: "absolute",
+          bottom: 0,
+          mt: 11,
+          mx: 11,
+        }}
+      >
         <CardMedia
           sx={{
+            height: {},
             width: "400px",
             height: "400px",
             borderRadius: 1,
             objectFit: "cover",
             objectPosition: "center",
             mr: 22,
+
           }}
           component="img"
           image="/empty.svg"
@@ -29,15 +39,13 @@ const Emptystate = ({handleOpen,setmood,setidedit}) => {
         <Box sx={{ position: "relative" }}>
           <CardMedia
             sx={{
-              height: "360px",
-              width: "671px",
               borderRadius: 1,
               objectFit: "cover",
               objectPosition: "center",
-              mt: 6,
+              mt:6
             }}
             component="img"
-            image="/Vector.svg"
+            image="/Vectorsearch.svg"
             title=" img2"
           />
           <Box
@@ -60,41 +68,33 @@ const Emptystate = ({handleOpen,setmood,setidedit}) => {
               component="h1"
               sx={{ fontSize: "2rem", mb: "1.5rem" }}
             >
-              Oops! No posts in this space.{" "}
+              Try a different keyword.{" "}
             </Typography>
             <Typography
               variant="h6"
               component="h1"
               sx={{ fontSize: "1.5rem", mb: "1.5rem" }}
             >
-              Be the trendsetter—start the conversation with your first post!{" "}
+              No recipes match your search .
             </Typography>
-             {usename? <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "secondary.contrastText",
-                  textTransform: "capitalize",
-                  fontFamily: "Playfair Display",
-                  fontWeight: 600,
-                  width:"30%",
-                  fontSize: "1.125rem",
-                  color: "primary.light",
-                }}
-                   onClick={() => {
-                    handleOpen();
-                    setmood("add");
-                    setidedit(null);
-                  }}
-              >
-                Start posting{" "}
-              </Button> :<Typography  variant="contained"
-                sx={{
-                  textTransform: "capitalize",
-                  fontFamily: "Playfair Display",
-                  fontWeight: 600,
-             fontSize:"1.125rem",
-                  color: "primary.light",
-                }}>Please log in to Start posting</Typography>}
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "secondary.contrastText",
+                textTransform: "capitalize",
+                fontFamily: "Playfair Display",
+                fontWeight: 600,
+                width: "30%",
+                fontSize: "1.125rem",
+                color: "primary.light",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                setInputValue("");
+              }}
+            >
+              Clear search
+            </Button>
           </Box>
         </Box>
       </Box>
@@ -102,4 +102,4 @@ const Emptystate = ({handleOpen,setmood,setidedit}) => {
   );
 };
 
-export default Emptystate;
+export default Nosearchmatch;

@@ -3,6 +3,8 @@ import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import MycustomeSnackbarSucess from "../Components/MycustomeSnackbarSucess";
+import imageCompression from 'browser-image-compression';
+
 export const Postscontext = createContext({
   posts: [],
   category: [],
@@ -20,6 +22,9 @@ export default function PostsProvider({ children }) {
   const [stateerrorfetch, setstateerrorfetch] = useState(false);
   //Auth
   const [usename, setusername] = React.useState(null);
+  //setuserimag
+  const [useimag, setuserimag] = React.useState(null);
+
   const [jwt, setJwt] = React.useState(null);
   const [userloginid, setuserloginid] = React.useState(null);
   const [userdatalogin, setuserdatalogin] = React.useState([]);
@@ -92,7 +97,7 @@ export default function PostsProvider({ children }) {
       if (!token) return;
 
       const response = await axios.get(
-        "http://localhost:1337/api/users/me?populate=recipes",
+        "http://localhost:1337/api/users/me?populate[recipes][filters][publishedAt][$notNull]=true&populate[recipes][populate]=images",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,8 +110,10 @@ export default function PostsProvider({ children }) {
     }
   };
   //login and logout
-  const login = async (username, usertoken, userid) => {
+  const login = async (username, usertoken, userid, userimguser) => {
     setusername(username);
+    setuserimag(userimguser);
+
     setJwt(usertoken);
     setuserloginid(userid);
     localStorage.setItem("name", username);
@@ -168,7 +175,7 @@ export default function PostsProvider({ children }) {
   const [addPostError, setAddPostError] = useState(false);
   const [statesucces, setstatesucess] = useState(false);
 
-  const uploadimag = async (imges) => {
+  const uploadimag = async (imges, state) => {
     console.log("yoy call me");
     const allamages = [];
     setUploading(true);
@@ -176,35 +183,52 @@ export default function PostsProvider({ children }) {
     setstatesucess(false);
 
     try {
+      const options = {
+        maxSizeMB: 1,
+        useWebWorker: true,
+      };
       for (const imge of imges) {
+        if (!(imge instanceof File)) {
+          throw new Error("❌ One of the images is not a valid File object.");
+        }
+        const compressedFile = await imageCompression(imge, options);
+
         const formData = new FormData();
-        formData.append("file", imge);
+        formData.append("file", compressedFile);
         formData.append("upload_preset", "my_preset");
-        formData.append("cloud_name", "dkpw1hn3b");
 
         const response = await axios.post(
           "https://api.cloudinary.com/v1_1/dkpw1hn3b/image/upload",
           formData
         );
+
         allamages.push(response.data.secure_url);
-        console.log(response.data.secure_url);
+        console.log("✅ Uploaded:", response.data.secure_url);
       }
+
       setimagesurl(allamages);
       setUploading(false);
+
       if (allamages.length === 4) {
         const payload = {
           ...form,
           images: allamages,
-          category: form.category ? { id: form.category } : null,
         };
-        console.log(payload);
-
-        await addpost(payload);
+        console.log("📦 Payload to addpost:", payload);
+        await addpost(payload, state);
       }
     } catch (err) {
       setUploading(false);
       setUploadError(true);
-      console.log(err);
+
+      if (err.response) {
+        console.error(
+          "❌ Cloudinary upload error:",
+          err.response.data.error.message
+        );
+      } else {
+        console.error("❌ Unexpected error:", err.message);
+      }
     }
   };
 
@@ -262,6 +286,50 @@ export default function PostsProvider({ children }) {
       console.error("addpost failed—body", err.response.data);
     }
   };
+  //updatepost
+  const updatepost = async (payload, id) => {
+    setAddingPost(true);
+    setAddPostError(false);
+    try {
+      const response = await axios.put(
+        `http://localhost:1337/api/recipes/${id}`,
+        { data: payload },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log("✅ Recipe updated:", response.data);
+
+      setAddingPost(false);
+      setstatesucess(true);
+      await fetchuserlogindata();
+
+      const catid = searchParams.get("catid");
+      const search = searchParams.get("search");
+      await fetchposts(catid, search);
+
+      enqueueSnackbar("Your recipe was updated successfully!", {
+        content: (key, message) => (
+          <MycustomeSnackbarSucess
+            id={key}
+            message={message}
+            onClick={closeSnackbar}
+          />
+        ),
+      });
+
+      return response.data;
+    } catch (err) {
+      setAddingPost(false);
+      setAddPostError(true);
+      console.error("update failed—status", err.response?.status);
+      console.error("update failed—body", err.response?.data);
+    }
+  };
 
   return (
     <Postscontext.Provider
@@ -293,8 +361,6 @@ export default function PostsProvider({ children }) {
         totalpage,
         inputValue,
         setInputValue,
-        // setimages,
-        // images,
         uploadimag,
         imagesurl,
         setimagesurl,
@@ -307,6 +373,8 @@ export default function PostsProvider({ children }) {
         uploadError,
         addPostError,
         statesucces,
+        updatepost,
+        useimag,
       }}
     >
       {children}

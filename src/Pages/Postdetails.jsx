@@ -179,7 +179,7 @@ export default function Postdetails() {
               variant="h4"
               component="h1"
               sx={{
-                color: "primary.main",
+                color: "primary.contrastText",
                 fontSize: "1.75rem",
                 marginBottom: 2,
               }}
@@ -205,7 +205,7 @@ export default function Postdetails() {
             variant="h3"
             sx={{
               color: "primary.dark",
-              fontSize: "1.5rem",
+              fontSize: "1.25rem",
               marginBottom: 4,
             }}
           >
@@ -231,7 +231,7 @@ export default function Postdetails() {
                   variant="h4"
                   component="h1"
                   sx={{
-                    color: "primary.main",
+                    color: "primary.contrastText",
                     fontSize: "1.5rem",
                     marginBottom: 2,
                   }}
@@ -264,7 +264,7 @@ export default function Postdetails() {
                   component="h1"
                   fontWeight=" medium"
                   sx={{
-                    color: "primary.main",
+                    color: "primary.contrastText",
                     fontSize: "1.5rem",
                     marginBottom: 2,
                   }}

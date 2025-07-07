@@ -3,37 +3,8 @@ import Avatar from "@mui/material/Avatar";
 import ButtonBase from "@mui/material/ButtonBase";
 import { Box, Grid } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { Postscontext } from "../Context/Context";
 
-export default function UploadAvatars({handleAvatarChange,avatarSrc,postdetails_images}) {
-//   const { uploadimag} = React.useContext(Postscontext);
-//   const [avatarSrc, setAvatarSrc] = React.useState([null, null, null, null]);
-//   const [fileSrc, setfileSrc] = React.useState([null, null, null, null]);
-
-//   const handleAvatarChange = (event, index) => {
-//     const file = event.target.files?.[0];
-//     if (file) {
-//       // file
-//       const updatedFileSrc = [...fileSrc];
-//       updatedFileSrc[index - 1] = file;
-//       setfileSrc(updatedFileSrc);
-
-//       // to make url preview
-//       const updatedavatarSrc = [...avatarSrc];
-//       updatedavatarSrc[index - 1] = URL.createObjectURL(file);
-//       setAvatarSrc(updatedavatarSrc);
-//     }
-//   };
-//   console.log(fileSrc);
-//   console.log(avatarSrc);
-//  React.useEffect(()=>{
-//   if(fileSrc.filter(Boolean).length===4){
-// uploadimag(fileSrc)
-//   }
-//  },[fileSrc])
-
-
-
+export default function UploadAvatars({handleAvatarChange,avatarSrc}) {
   return (
     <Box sx={{}}>
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>

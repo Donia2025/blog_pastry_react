@@ -10,6 +10,7 @@ import {
   DialogTitle,
   Tooltip,
   DialogContent,
+  Avatar,
 } from "@mui/material";
 import { IconButton } from "@mui/material";
 
@@ -35,10 +36,10 @@ export default function MediaCard({
   recipename,
   handleOpen,
   setmood,
-  mood,setidedit
+  mood,setidedit,categoryid
 }) {
   const [idpostselete, setidpostdelete] = React.useState("");
-  const { fetchposts } = React.useContext(Postscontext);
+  const { fetchposts ,useimag} = React.useContext(Postscontext);
   const [searchParams, setsearchparams] = useSearchParams();
   const { enqueueSnackbar } = useSnackbar();
   const [open, setopen] = React.useState(false);
@@ -108,12 +109,16 @@ setmood("edit")
   };
   //for check
   console.log(post);
- 
+ React.useEffect(() => {
+    if (post) {
+      console.log(post)
+    }
+  }, [post]);
 
 
   return (
     <Card sx={{ maxWidth: 345 }}>
-      <CardMedia sx={{ height: 200 }} image={post.images[0].img_url} />
+      <CardMedia sx={{ height: 200 }} image={post.images[0]?.img_url} />
       <CardContent>
         <Box
           sx={{
@@ -131,11 +136,11 @@ setmood("edit")
             {post.category.name}
           </Typography>
           {isuserid && usename ? (
-            <Box sx={{ display: "flex", gap: "0.5rem" }}>
+            <Box sx={{ display: "flex" }}>
               <Tooltip title="Edit">
                 <IconButton
                   color="secondary"
-                  sx={{ p: 0, m: 0, color: "primary.contrastText" }}
+                  sx={{ px:1,py:2, m: 0, color: "primary.contrastText" }}
                   onClick={(e)=>{ 
                     handeleditpost(e, post.id,post.category.id,post.category.name)}}
                 >
@@ -144,7 +149,7 @@ setmood("edit")
               </Tooltip>
               <Tooltip title="Delete">
                 <IconButton
-                  sx={{ p: 0, m: 0, color: "primary.contrastText" }}
+                  sx={{ px:1,py:2, m: 0, color: "primary.contrastText" }}
                   onClick={(e) => handeldeletepost(e, post.id)}
                 >
                   <DeleteOutlineRounded />
@@ -162,7 +167,7 @@ setmood("edit")
                     borderColor: "primary.contrastText",
                     backgroundColor: "#ffffff",
                     width: 500,
-                    height: 260,
+                    height: 230,
                     px: 3,
                     position: "relative",
                     pt: 2,
@@ -190,6 +195,7 @@ setmood("edit")
                       fontSize: "1.75rem",
                       color: "primary.contrastText",
                       p: 0,
+                      mb:1
                     }}
                   >
                     Confirm Deletion
@@ -216,32 +222,11 @@ setmood("edit")
                       gap: 3,
                       justifyContent: "space-between",
                       position: "absolute",
-                      bottom: 0,
+                      bottom: 24,
                       left: 24,
                       right: 24,
                     }}
                   >
-                    <CardMedia
-                      sx={{
-                        height: {},
-                        width: "105px",
-                        height: "95px",
-                        objectFit: "contain",
-                      }}
-                      component="img"
-                      image="/not found.svg"
-                      title=" img2"
-                    />
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 3,
-                        position: "absolute",
-                        bottom: 0,
-                        right: 3,
-                        pb: 2,
-                      }}
-                    >
                       <Button
                         variant="outlined"
                         type="submit"
@@ -251,7 +236,7 @@ setmood("edit")
                           fontFamily: "Playfair Display",
                           fontWeight: 600,
                           height: "3rem",
-                          width: "9rem",
+                          width:"50%",
                           fontSize: "1rem",
                           color: "primary.contrastText",
                           boxShadow: "0px 1px 2px 0px rgba(196, 10, 104, 0.25)",
@@ -270,7 +255,7 @@ setmood("edit")
                           fontFamily: "Playfair Display",
                           fontWeight: 600,
                           height: "3rem",
-                          width: "9rem",
+                          width:"50%",
                           fontSize: "1rem",
                           color: "primary.light",
                           boxShadow: "0px 4px 4px 0px rgba(196, 10, 104, 0.25)",
@@ -279,7 +264,6 @@ setmood("edit")
                       >
                         Delete{" "}
                       </Button>
-                    </Box>
                   </Box>
                 </Box>
               </Dialog>
@@ -346,7 +330,9 @@ setmood("edit")
           >
             {post.difficulty}
           </Typography>
-          <Typography
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Avatar alt="Remy Sharp" src={post.user?.imguser} sx={{width:25,height:25}}/>
+                  <Typography
             variant="body1"
             component="h1"
             sx={{
@@ -355,8 +341,10 @@ setmood("edit")
               fontSize: "1rem",
             }}
           >
-            by: {post.user.username}
+          {post.user.username}
           </Typography>
+          </Box>
+        
         </Box>
       </CardContent>
     </Card>
